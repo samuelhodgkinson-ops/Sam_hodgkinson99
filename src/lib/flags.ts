@@ -1,17 +1,17 @@
 // ISO 3166-1 alpha-2 codes for flag images via flagcdn.com
 const teamToIso2: Record<string, string> = {
-  'united-states': 'us', 'colombia': 'co', 'morocco': 'ma', 'mali': 'ml',
-  'france': 'fr', 'cameroon': 'cm', 'ecuador': 'ec', 'uzbekistan': 'uz',
-  'argentina': 'ar', 'japan': 'jp', 'tunisia': 'tn', 'peru': 'pe',
-  'germany': 'de', 'uruguay': 'uy', 'south-korea': 'kr', 'bahrain': 'bh',
-  'brazil': 'br', 'nigeria': 'ng', 'australia': 'au', 'tanzania': 'tz',
-  'england': 'gb-eng', 'senegal': 'sn', 'paraguay': 'py', 'bolivia': 'bo',
-  'spain': 'es', 'mexico': 'mx', 'canada': 'ca', 'suriname': 'sr',
-  'netherlands': 'nl', 'iran': 'ir', 'honduras': 'hn', 'new-zealand': 'nz',
-  'portugal': 'pt', 'italy': 'it', 'saudi-arabia': 'sa', 'indonesia': 'id',
-  'belgium': 'be', 'croatia': 'hr', 'venezuela': 've', 'panama': 'pa',
-  'serbia': 'rs', 'denmark': 'dk', 'qatar': 'qa', 'costa-rica': 'cr',
-  'switzerland': 'ch', 'scotland': 'gb-sct', 'turkey': 'tr', 'jamaica': 'jm',
+  'mexico': 'mx', 'south-africa': 'za', 'south-korea': 'kr', 'czechia': 'cz',
+  'canada': 'ca', 'bosnia-herzegovina': 'ba', 'qatar': 'qa', 'switzerland': 'ch',
+  'brazil': 'br', 'morocco': 'ma', 'haiti': 'ht', 'scotland': 'gb-sct',
+  'united-states': 'us', 'paraguay': 'py', 'australia': 'au', 'turkey': 'tr',
+  'germany': 'de', 'curacao': 'cw', 'cote-divoire': 'ci', 'ecuador': 'ec',
+  'netherlands': 'nl', 'japan': 'jp', 'sweden': 'se', 'tunisia': 'tn',
+  'belgium': 'be', 'egypt': 'eg', 'iran': 'ir', 'new-zealand': 'nz',
+  'spain': 'es', 'cabo-verde': 'cv', 'saudi-arabia': 'sa', 'uruguay': 'uy',
+  'france': 'fr', 'senegal': 'sn', 'iraq': 'iq', 'norway': 'no',
+  'argentina': 'ar', 'algeria': 'dz', 'austria': 'at', 'jordan': 'jo',
+  'portugal': 'pt', 'congo-dr': 'cd', 'uzbekistan': 'uz', 'colombia': 'co',
+  'england': 'gb-eng', 'croatia': 'hr', 'ghana': 'gh', 'panama': 'pa',
 };
 
 export function getFlagUrl(teamId: string, width: number = 40): string {

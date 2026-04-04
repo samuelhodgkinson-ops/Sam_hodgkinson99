@@ -6,18 +6,18 @@ import { Standing } from '@/types';
 type GroupEntry = { teams: string[]; positions: number[] };
 
 const groupData: { group: string; entries: GroupEntry }[] = [
-  { group: 'Group A', entries: { teams: ['united-states', 'colombia', 'morocco', 'mali'], positions: [1, 2, 3, 4] } },
-  { group: 'Group B', entries: { teams: ['france', 'cameroon', 'ecuador', 'uzbekistan'], positions: [1, 3, 2, 4] } },
-  { group: 'Group C', entries: { teams: ['argentina', 'japan', 'tunisia', 'peru'], positions: [1, 2, 3, 4] } },
-  { group: 'Group D', entries: { teams: ['germany', 'uruguay', 'south-korea', 'bahrain'], positions: [1, 2, 3, 4] } },
-  { group: 'Group E', entries: { teams: ['brazil', 'nigeria', 'australia', 'tanzania'], positions: [1, 2, 3, 4] } },
-  { group: 'Group F', entries: { teams: ['england', 'senegal', 'paraguay', 'bolivia'], positions: [1, 2, 3, 4] } },
-  { group: 'Group G', entries: { teams: ['spain', 'mexico', 'canada', 'suriname'], positions: [1, 2, 3, 4] } },
-  { group: 'Group H', entries: { teams: ['netherlands', 'iran', 'honduras', 'new-zealand'], positions: [1, 2, 3, 4] } },
-  { group: 'Group I', entries: { teams: ['portugal', 'italy', 'saudi-arabia', 'indonesia'], positions: [1, 2, 3, 4] } },
-  { group: 'Group J', entries: { teams: ['belgium', 'croatia', 'venezuela', 'panama'], positions: [1, 2, 3, 4] } },
-  { group: 'Group K', entries: { teams: ['serbia', 'denmark', 'qatar', 'costa-rica'], positions: [2, 1, 3, 4] } },
-  { group: 'Group L', entries: { teams: ['switzerland', 'scotland', 'turkey', 'jamaica'], positions: [1, 3, 2, 4] } },
+  { group: 'Group A', entries: { teams: ['mexico', 'south-africa', 'south-korea', 'czechia'], positions: [1, 3, 2, 4] } },
+  { group: 'Group B', entries: { teams: ['canada', 'bosnia-herzegovina', 'qatar', 'switzerland'], positions: [3, 4, 2, 1] } },
+  { group: 'Group C', entries: { teams: ['brazil', 'morocco', 'haiti', 'scotland'], positions: [1, 2, 4, 3] } },
+  { group: 'Group D', entries: { teams: ['united-states', 'paraguay', 'australia', 'turkey'], positions: [1, 4, 3, 2] } },
+  { group: 'Group E', entries: { teams: ['germany', 'curacao', 'cote-divoire', 'ecuador'], positions: [1, 4, 3, 2] } },
+  { group: 'Group F', entries: { teams: ['netherlands', 'japan', 'sweden', 'tunisia'], positions: [1, 2, 3, 4] } },
+  { group: 'Group G', entries: { teams: ['belgium', 'egypt', 'iran', 'new-zealand'], positions: [1, 3, 2, 4] } },
+  { group: 'Group H', entries: { teams: ['spain', 'cabo-verde', 'saudi-arabia', 'uruguay'], positions: [1, 4, 3, 2] } },
+  { group: 'Group I', entries: { teams: ['france', 'senegal', 'iraq', 'norway'], positions: [1, 3, 4, 2] } },
+  { group: 'Group J', entries: { teams: ['argentina', 'algeria', 'austria', 'jordan'], positions: [1, 3, 2, 4] } },
+  { group: 'Group K', entries: { teams: ['portugal', 'congo-dr', 'uzbekistan', 'colombia'], positions: [1, 4, 3, 2] } },
+  { group: 'Group L', entries: { teams: ['england', 'croatia', 'ghana', 'panama'], positions: [1, 2, 4, 3] } },
 ];
 
 export const standings: Standing[] = groupData.flatMap(({ group, entries }) =>

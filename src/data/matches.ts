@@ -22,18 +22,18 @@ const venues = [
 type GroupDef = { group: string; teams: [string, string, string, string] };
 
 const groups: GroupDef[] = [
-  { group: 'Group A', teams: ['united-states', 'colombia', 'morocco', 'mali'] },
-  { group: 'Group B', teams: ['france', 'cameroon', 'ecuador', 'uzbekistan'] },
-  { group: 'Group C', teams: ['argentina', 'japan', 'tunisia', 'peru'] },
-  { group: 'Group D', teams: ['germany', 'uruguay', 'south-korea', 'bahrain'] },
-  { group: 'Group E', teams: ['brazil', 'nigeria', 'australia', 'tanzania'] },
-  { group: 'Group F', teams: ['england', 'senegal', 'paraguay', 'bolivia'] },
-  { group: 'Group G', teams: ['spain', 'mexico', 'canada', 'suriname'] },
-  { group: 'Group H', teams: ['netherlands', 'iran', 'honduras', 'new-zealand'] },
-  { group: 'Group I', teams: ['portugal', 'italy', 'saudi-arabia', 'indonesia'] },
-  { group: 'Group J', teams: ['belgium', 'croatia', 'venezuela', 'panama'] },
-  { group: 'Group K', teams: ['serbia', 'denmark', 'qatar', 'costa-rica'] },
-  { group: 'Group L', teams: ['switzerland', 'scotland', 'turkey', 'jamaica'] },
+  { group: 'Group A', teams: ['mexico', 'south-africa', 'south-korea', 'czechia'] },
+  { group: 'Group B', teams: ['canada', 'bosnia-herzegovina', 'qatar', 'switzerland'] },
+  { group: 'Group C', teams: ['brazil', 'morocco', 'haiti', 'scotland'] },
+  { group: 'Group D', teams: ['united-states', 'paraguay', 'australia', 'turkey'] },
+  { group: 'Group E', teams: ['germany', 'curacao', 'cote-divoire', 'ecuador'] },
+  { group: 'Group F', teams: ['netherlands', 'japan', 'sweden', 'tunisia'] },
+  { group: 'Group G', teams: ['belgium', 'egypt', 'iran', 'new-zealand'] },
+  { group: 'Group H', teams: ['spain', 'cabo-verde', 'saudi-arabia', 'uruguay'] },
+  { group: 'Group I', teams: ['france', 'senegal', 'iraq', 'norway'] },
+  { group: 'Group J', teams: ['argentina', 'algeria', 'austria', 'jordan'] },
+  { group: 'Group K', teams: ['portugal', 'congo-dr', 'uzbekistan', 'colombia'] },
+  { group: 'Group L', teams: ['england', 'croatia', 'ghana', 'panama'] },
 ];
 
 // Match day schedule: MD1 = Jun 11-14, MD2 = Jun 17-20, MD3 = Jun 23-26
