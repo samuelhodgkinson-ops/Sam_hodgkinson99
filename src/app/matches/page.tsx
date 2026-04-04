@@ -6,6 +6,7 @@ import { matches } from "@/data/matches";
 import { teams } from "@/data/teams";
 import { Card } from "@/components/ui/Card";
 import { LastUpdated } from "@/components/ui/LastUpdated";
+import { TeamFlag } from "@/components/ui/TeamFlag";
 import { formatMatchDate } from "@/lib/utils";
 
 export default function MatchesPage() {
@@ -57,7 +58,7 @@ export default function MatchesPage() {
                           <div className="text-xs text-[var(--accent-light)] w-14 text-center shrink-0">{match.time} UTC</div>
                           <div className="flex-1 flex items-center justify-between min-w-0">
                             <div className="flex items-center gap-2 flex-1 min-w-0">
-                              <span className="text-lg">{home?.flag || '🏳️'}</span>
+                              {home ? <TeamFlag teamId={home.id} size="sm" /> : <span className="text-lg">🏳️</span>}
                               <span className="text-sm font-medium text-white truncate">{home?.shortName || match.homeTeamId}</span>
                             </div>
                             <div className="px-3 text-center shrink-0">
@@ -67,7 +68,7 @@ export default function MatchesPage() {
                             </div>
                             <div className="flex items-center gap-2 flex-1 min-w-0 justify-end">
                               <span className="text-sm font-medium text-white truncate">{away?.shortName || match.awayTeamId}</span>
-                              <span className="text-lg">{away?.flag || '🏳️'}</span>
+                              {away ? <TeamFlag teamId={away.id} size="sm" /> : <span className="text-lg">🏳️</span>}
                             </div>
                           </div>
                           <div className="text-xs text-[var(--muted)] w-24 text-right shrink-0 hidden sm:block">{match.group || match.stage}</div>

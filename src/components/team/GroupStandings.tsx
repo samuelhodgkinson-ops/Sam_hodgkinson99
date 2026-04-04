@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Standing, Team } from "@/types";
 import { Card, CardHeader, CardTitle } from "@/components/ui/Card";
 import { FormStrip } from "@/components/ui/Badge";
+import { TeamFlag } from "@/components/ui/TeamFlag";
 
 export function GroupStandings({ standings, allTeams, currentTeamId, group, compact = false }: { standings: Standing[]; allTeams: Team[]; currentTeamId?: string; group: string; compact?: boolean }) {
   const sorted = [...standings].sort((a, b) => b.points !== a.points ? b.points - a.points : b.goalDifference !== a.goalDifference ? b.goalDifference - a.goalDifference : b.goalsFor - a.goalsFor);
@@ -30,7 +31,7 @@ export function GroupStandings({ standings, allTeams, currentTeamId, group, comp
                   <td>
                     {team ? (
                       <Link href={`/teams/${s.teamId}`} className="flex items-center gap-2 hover:text-[var(--accent-light)]">
-                        <span className="text-lg">{team.flag}</span>
+                        <TeamFlag teamId={s.teamId} size="sm" />
                         <span className={`text-sm font-medium ${isCurrent ? "text-[var(--accent-light)]" : "text-white"}`}>{team.shortName}</span>
                       </Link>
                     ) : (

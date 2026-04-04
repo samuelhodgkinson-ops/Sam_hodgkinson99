@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Match, Team } from "@/types";
 import { Card, CardHeader, CardTitle } from "@/components/ui/Card";
 import { formatMatchDate, getCountdown } from "@/lib/utils";
+import { TeamFlag } from "@/components/ui/TeamFlag";
 
 export function FixturesList({ fixtures, teamId, allTeams, title = "Upcoming Fixtures", showCountdown = true }: { fixtures: Match[]; teamId: string; allTeams: Team[]; title?: string; showCountdown?: boolean }) {
   const getTeam = (id: string) => allTeams.find(t => t.id === id);
@@ -27,7 +28,7 @@ export function FixturesList({ fixtures, teamId, allTeams, title = "Upcoming Fix
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <span className="text-lg">{opponent?.flag}</span>
+                    {opponent && <TeamFlag teamId={opponent.id} size="md" />}
                     <div>
                       <div className="text-sm font-medium text-white">vs {opponent?.name || "TBD"}</div>
                       <div className="text-xs text-[var(--muted)]">{isHome ? "Home" : "Away"} | {match.stage}{match.group ? ` | ${match.group}` : ""}</div>

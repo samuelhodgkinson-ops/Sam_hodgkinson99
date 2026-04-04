@@ -28,7 +28,7 @@ export default function TeamDetailPage() {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-16 text-center">
         <h1 className="text-2xl font-bold text-white mb-4">Team not found</h1>
-        <p className="text-[var(--muted)] mb-6">The team &quot;{teamId}&quot; does not exist in this prototype.</p>
+        <p className="text-[var(--muted)] mb-6">The team &quot;{teamId}&quot; could not be found.</p>
         <Link href="/teams" className="text-[var(--accent-light)] hover:underline">Back to all teams</Link>
       </div>
     );

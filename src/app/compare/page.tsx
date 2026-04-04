@@ -6,6 +6,7 @@ import { teams } from "@/data/teams";
 import { squads } from "@/data/squads";
 import { Card, CardHeader, CardTitle } from "@/components/ui/Card";
 import { GroupBadge, ConfederationBadge } from "@/components/ui/Badge";
+import { TeamFlag } from "@/components/ui/TeamFlag";
 import { generateTeamStats, getSquadAverageAge, getKeyPlayers } from "@/lib/utils";
 
 function CompareContent() {
@@ -28,14 +29,14 @@ function CompareContent() {
           <label className="text-xs text-[var(--muted)] uppercase font-semibold mb-1 block">Team 1</label>
           <select value={team1Id} onChange={(e) => setTeam1Id(e.target.value)} className="w-full py-2.5">
             <option value="">Select a team...</option>
-            {teams.sort((a, b) => a.name.localeCompare(b.name)).map(t => <option key={t.id} value={t.id}>{t.flag} {t.name} ({t.group})</option>)}
+            {teams.sort((a, b) => a.name.localeCompare(b.name)).map(t => <option key={t.id} value={t.id}>{t.name} ({t.group})</option>)}
           </select>
         </div>
         <div>
           <label className="text-xs text-[var(--muted)] uppercase font-semibold mb-1 block">Team 2</label>
           <select value={team2Id} onChange={(e) => setTeam2Id(e.target.value)} className="w-full py-2.5">
             <option value="">Select a team...</option>
-            {teams.sort((a, b) => a.name.localeCompare(b.name)).map(t => <option key={t.id} value={t.id}>{t.flag} {t.name} ({t.group})</option>)}
+            {teams.sort((a, b) => a.name.localeCompare(b.name)).map(t => <option key={t.id} value={t.id}>{t.name} ({t.group})</option>)}
           </select>
         </div>
       </div>
@@ -45,13 +46,13 @@ function CompareContent() {
           <Card>
             <div className="grid grid-cols-3 gap-4 text-center">
               <div>
-                <span className="text-4xl block mb-2">{team1.flag}</span>
+                <div className="flex justify-center mb-2"><TeamFlag teamId={team1.id} size="xl" /></div>
                 <h3 className="font-bold text-white">{team1.name}</h3>
                 <div className="flex items-center justify-center gap-2 mt-1"><GroupBadge group={team1.group} /><ConfederationBadge confederation={team1.confederation} /></div>
               </div>
               <div className="flex items-center justify-center"><span className="text-2xl text-[var(--muted)]">vs</span></div>
               <div>
-                <span className="text-4xl block mb-2">{team2.flag}</span>
+                <div className="flex justify-center mb-2"><TeamFlag teamId={team2.id} size="xl" /></div>
                 <h3 className="font-bold text-white">{team2.name}</h3>
                 <div className="flex items-center justify-center gap-2 mt-1"><GroupBadge group={team2.group} /><ConfederationBadge confederation={team2.confederation} /></div>
               </div>
@@ -75,23 +76,23 @@ function CompareContent() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Card>
-              <CardHeader><CardTitle>{team1.flag} Key Players</CardTitle></CardHeader>
+              <CardHeader><CardTitle><span className="inline-flex items-center gap-2"><TeamFlag teamId={team1.id} size="sm" /> Key Players</span></CardTitle></CardHeader>
               {getKeyPlayers(t1Squad).slice(0, 5).map(p => <div key={p.id} className="flex justify-between text-sm py-1"><span className="text-white">{p.name}</span><span className="text-[var(--muted)]">{p.position} | {p.caps} caps</span></div>)}
             </Card>
             <Card>
-              <CardHeader><CardTitle>{team2.flag} Key Players</CardTitle></CardHeader>
+              <CardHeader><CardTitle><span className="inline-flex items-center gap-2"><TeamFlag teamId={team2.id} size="sm" /> Key Players</span></CardTitle></CardHeader>
               {getKeyPlayers(t2Squad).slice(0, 5).map(p => <div key={p.id} className="flex justify-between text-sm py-1"><span className="text-white">{p.name}</span><span className="text-[var(--muted)]">{p.position} | {p.caps} caps</span></div>)}
             </Card>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Card>
-              <CardHeader><CardTitle>{team1.flag} Strengths &amp; Weaknesses</CardTitle></CardHeader>
+              <CardHeader><CardTitle><span className="inline-flex items-center gap-2"><TeamFlag teamId={team1.id} size="sm" /> Strengths &amp; Weaknesses</span></CardTitle></CardHeader>
               <div className="mb-2">{team1.strengths.map((s, i) => <div key={i} className="text-sm text-[var(--muted-light)] flex gap-2"><span className="text-[var(--success)]">+</span> {s}</div>)}</div>
               {team1.weaknesses.map((w, i) => <div key={i} className="text-sm text-[var(--muted-light)] flex gap-2"><span className="text-[var(--danger)]">-</span> {w}</div>)}
             </Card>
             <Card>
-              <CardHeader><CardTitle>{team2.flag} Strengths &amp; Weaknesses</CardTitle></CardHeader>
+              <CardHeader><CardTitle><span className="inline-flex items-center gap-2"><TeamFlag teamId={team2.id} size="sm" /> Strengths &amp; Weaknesses</span></CardTitle></CardHeader>
               <div className="mb-2">{team2.strengths.map((s, i) => <div key={i} className="text-sm text-[var(--muted-light)] flex gap-2"><span className="text-[var(--success)]">+</span> {s}</div>)}</div>
               {team2.weaknesses.map((w, i) => <div key={i} className="text-sm text-[var(--muted-light)] flex gap-2"><span className="text-[var(--danger)]">-</span> {w}</div>)}
             </Card>

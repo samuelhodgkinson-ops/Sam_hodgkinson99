@@ -7,6 +7,7 @@ import { teams } from "@/data/teams";
 import { squads } from "@/data/squads";
 import { Card, CardHeader, CardTitle } from "@/components/ui/Card";
 import { formatMatchDate, generateTeamStats, generateRecentResults } from "@/lib/utils";
+import { TeamFlag } from "@/components/ui/TeamFlag";
 
 export default function MatchDetailPage() {
   const params = useParams();
@@ -38,7 +39,7 @@ export default function MatchDetailPage() {
         </div>
         <div className="flex items-center justify-center gap-8">
           <Link href={home ? `/teams/${home.id}` : "#"} className="text-center group">
-            <span className="text-5xl block mb-2">{home?.flag || '🏳️'}</span>
+            <div className="mb-2 flex justify-center">{home ? <TeamFlag teamId={home.id} size="xl" /> : <span className="text-5xl">🏳️</span>}</div>
             <span className="text-lg font-bold text-white group-hover:text-[var(--accent-light)]">{home?.name || match.homeTeamId}</span>
           </Link>
           <div className="text-center px-6">
@@ -49,7 +50,7 @@ export default function MatchDetailPage() {
             <div className="text-sm text-[var(--accent-light)]">{match.time} UTC</div>
           </div>
           <Link href={away ? `/teams/${away.id}` : "#"} className="text-center group">
-            <span className="text-5xl block mb-2">{away?.flag || '🏳️'}</span>
+            <div className="mb-2 flex justify-center">{away ? <TeamFlag teamId={away.id} size="xl" /> : <span className="text-5xl">🏳️</span>}</div>
             <span className="text-lg font-bold text-white group-hover:text-[var(--accent-light)]">{away?.name || match.awayTeamId}</span>
           </Link>
         </div>
@@ -62,18 +63,18 @@ export default function MatchDetailPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <SquadPreview teamId={match.homeTeamId} name={home?.shortName || match.homeTeamId} flag={home?.flag || '🏳️'} />
-        <SquadPreview teamId={match.awayTeamId} name={away?.shortName || match.awayTeamId} flag={away?.flag || '🏳️'} />
+        <SquadPreview teamId={match.homeTeamId} name={home?.shortName || match.homeTeamId} />
+        <SquadPreview teamId={match.awayTeamId} name={away?.shortName || match.awayTeamId} />
       </div>
     </div>
   );
 }
 
 function TeamSidePanel({ team, stats, results }: { team: typeof import("@/data/teams").teams[number] | undefined; stats: ReturnType<typeof import("@/lib/utils").generateTeamStats> | null; results: ReturnType<typeof import("@/lib/utils").generateRecentResults> }) {
-  if (!team) return <Card><p className="text-[var(--muted)]">Team data not available in prototype</p></Card>;
+  if (!team) return <Card><p className="text-[var(--muted)]">Team data not available yet</p></Card>;
   return (
     <Card>
-      <CardHeader><CardTitle>{team.flag} {team.shortName}</CardTitle></CardHeader>
+      <CardHeader><CardTitle><span className="inline-flex items-center gap-2"><TeamFlag teamId={team.id} size="sm" /> {team.shortName}</span></CardTitle></CardHeader>
       <div className="space-y-3 text-sm">
         <div className="flex justify-between"><span className="text-[var(--muted)]">FIFA Ranking</span><span className="font-semibold">#{team.fifaRanking}</span></div>
         <div className="flex justify-between"><span className="text-[var(--muted)]">Coach</span><span>{team.coach}</span></div>
@@ -98,15 +99,15 @@ function TeamSidePanel({ team, stats, results }: { team: typeof import("@/data/t
   );
 }
 
-function SquadPreview({ teamId, name, flag }: { teamId: string; name: string; flag: string }) {
+function SquadPreview({ teamId, name }: { teamId: string; name: string }) {
   const squad = squads[teamId] || [];
   const starters = squad.filter(p => p.isStarter);
 
-  if (!starters.length) return <Card><CardHeader><CardTitle>{flag} {name}</CardTitle></CardHeader><p className="text-sm text-[var(--muted)]">Squad not available in prototype</p></Card>;
+  if (!starters.length) return <Card><CardHeader><CardTitle><span className="inline-flex items-center gap-2"><TeamFlag teamId={teamId} size="sm" /> {name}</span></CardTitle></CardHeader><p className="text-sm text-[var(--muted)]">Squad not available yet</p></Card>;
 
   return (
     <Card>
-      <CardHeader><CardTitle>{flag} {name} - Expected XI</CardTitle></CardHeader>
+      <CardHeader><CardTitle><span className="inline-flex items-center gap-2"><TeamFlag teamId={teamId} size="sm" /> {name} - Expected XI</span></CardTitle></CardHeader>
       <div className="space-y-1">
         {starters.map(p => (
           <div key={p.id} className="flex items-center gap-2 text-sm py-1">

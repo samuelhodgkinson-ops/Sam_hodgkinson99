@@ -1,5 +1,6 @@
 import { Team, Standing, Match } from "@/types";
 import { GroupBadge, ConfederationBadge } from "@/components/ui/Badge";
+import { TeamFlag } from "@/components/ui/TeamFlag";
 import { formatMatchDate } from "@/lib/utils";
 
 export function TeamHeader({ team, standing, nextMatch, allTeams }: { team: Team; standing?: Standing; nextMatch?: Match; allTeams: Team[] }) {
@@ -13,7 +14,7 @@ export function TeamHeader({ team, standing, nextMatch, allTeams }: { team: Team
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
         <div className="flex flex-col md:flex-row md:items-center gap-6">
           <div className="flex items-center gap-4">
-            <span className="text-6xl">{team.flag}</span>
+            <TeamFlag teamId={team.id} size="xl" />
             <div>
               <h1 className="text-3xl font-bold text-white">{team.name}</h1>
               <div className="flex flex-wrap items-center gap-2 mt-2">
@@ -38,15 +39,18 @@ export function TeamHeader({ team, standing, nextMatch, allTeams }: { team: Team
                 <div className="font-medium">{standing.won}W {standing.drawn}D {standing.lost}L | {standing.points} pts</div>
               </div>
             )}
-            {nextMatch && (
-              <div>
-                <div className="text-xs text-[var(--muted)] mb-0.5">Next Match</div>
-                <div className="font-medium">
-                  vs {(() => { const op = getOpponent(nextMatch); return op ? `${op.flag} ${op.shortName}` : 'TBD'; })()}
-                  <span className="text-[var(--muted)] ml-1">{formatMatchDate(nextMatch.date)}</span>
+            {nextMatch && (() => {
+              const op = getOpponent(nextMatch);
+              return (
+                <div>
+                  <div className="text-xs text-[var(--muted)] mb-0.5">Next Match</div>
+                  <div className="font-medium flex items-center gap-1">
+                    vs {op && <TeamFlag teamId={op.id} size="xs" />} {op?.shortName || 'TBD'}
+                    <span className="text-[var(--muted)] ml-1">{formatMatchDate(nextMatch.date)}</span>
+                  </div>
                 </div>
-              </div>
-            )}
+              );
+            })()}
           </div>
         </div>
         <div className="mt-4 text-sm text-[var(--muted)]">

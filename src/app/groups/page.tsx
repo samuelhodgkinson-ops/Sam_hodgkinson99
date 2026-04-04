@@ -14,7 +14,7 @@ export default function GroupsPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>
           <h1 className="text-2xl font-bold text-white">Groups</h1>
-          <p className="text-sm text-[var(--muted)]">Prototype: showing groups with featured teams</p>
+          <p className="text-sm text-[var(--muted)]">12 groups, 4 teams each</p>
         </div>
         <LastUpdated timestamp="2026-04-04T00:00:00Z" source="FIFA.com" />
       </div>

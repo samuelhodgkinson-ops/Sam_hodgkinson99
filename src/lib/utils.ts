@@ -73,17 +73,38 @@ export function filterTeams(teams: Team[], filters: { search?: string; group?: s
   return result;
 }
 
+// Realistic recent pre-tournament results per confederation
+const recentOpponents: Record<string, { opponents: string[]; competitions: string[] }> = {
+  UEFA: { opponents: ['France', 'Germany', 'Italy', 'Spain', 'Portugal', 'Belgium', 'Netherlands', 'Croatia', 'Switzerland', 'Denmark', 'Austria', 'Sweden', 'Norway', 'Poland', 'Czech Republic', 'Scotland', 'Turkey', 'Serbia', 'Hungary', 'Romania', 'Greece', 'Ukraine', 'Wales', 'Finland', 'Iceland', 'Ireland', 'Bosnia', 'Slovakia', 'Albania', 'Montenegro'], competitions: ['UEFA Nations League', 'Friendly', 'WC Qualifier'] },
+  CONMEBOL: { opponents: ['Brazil', 'Argentina', 'Uruguay', 'Colombia', 'Chile', 'Ecuador', 'Paraguay', 'Peru', 'Venezuela', 'Bolivia'], competitions: ['WC Qualifier', 'Copa America', 'Friendly'] },
+  CONCACAF: { opponents: ['Mexico', 'United States', 'Canada', 'Costa Rica', 'Jamaica', 'Honduras', 'Panama', 'El Salvador', 'Guatemala', 'Trinidad & Tobago'], competitions: ['CONCACAF Nations League', 'WC Qualifier', 'Friendly'] },
+  CAF: { opponents: ['Senegal', 'Morocco', 'Nigeria', 'Egypt', 'Cameroon', 'Algeria', 'Ghana', 'Ivory Coast', 'Tunisia', 'Mali', 'DR Congo', 'South Africa', 'Burkina Faso', 'Tanzania'], competitions: ['AFCON Qualifier', 'WC Qualifier', 'Friendly'] },
+  AFC: { opponents: ['Japan', 'South Korea', 'Iran', 'Australia', 'Saudi Arabia', 'Qatar', 'Iraq', 'Uzbekistan', 'UAE', 'Oman', 'China', 'Bahrain', 'Jordan', 'Indonesia'], competitions: ['AFC Asian Cup', 'WC Qualifier', 'Friendly'] },
+  OFC: { opponents: ['New Zealand', 'Fiji', 'Papua New Guinea', 'New Caledonia', 'Solomon Islands', 'Tahiti', 'Vanuatu', 'Samoa'], competitions: ['OFC Nations Cup', 'WC Qualifier', 'Friendly'] },
+};
+
+function seededRandom(seed: number): () => number {
+  let s = seed;
+  return () => { s = (s * 16807) % 2147483647; return (s - 1) / 2147483646; };
+}
+
 export function generateRecentResults(team: Team): RecentResult[] {
+  const confData = recentOpponents[team.confederation] || recentOpponents.UEFA;
+  const availableOpponents = confData.opponents.filter(o => o !== team.name && o !== team.shortName);
+  const rand = seededRandom(team.id.split('').reduce((a, c) => a + c.charCodeAt(0), 0));
   const outcomes: MatchResult[] = ['W', 'D', 'W', 'L', 'W'];
   const scores = ['2-0', '1-1', '3-1', '0-1', '1-0'];
+  // Pick 5 different opponents deterministically
+  const shuffled = [...availableOpponents].sort(() => rand() - 0.5);
+
   return outcomes.map((result, i) => ({
     matchId: `pre-${team.id}-${i}`,
-    opponent: i < 2 ? 'Qualifying Opponent' : 'Friendly Opponent',
-    opponentId: 'friendly',
+    opponent: shuffled[i % shuffled.length],
+    opponentId: 'pre-tournament',
     date: `2026-0${3 + Math.floor(i / 3)}-${String(10 + i * 5).padStart(2, '0')}`,
     score: scores[i],
     result,
-    competition: i < 2 ? 'Qualification' : 'Friendly',
+    competition: confData.competitions[i % confData.competitions.length],
     venue: 'Neutral',
   }));
 }

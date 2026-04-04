@@ -8,12 +8,13 @@ import { matches } from "@/data/matches";
 import { SearchInput } from "@/components/ui/SearchInput";
 import { Card } from "@/components/ui/Card";
 import { GroupBadge, ConfederationBadge } from "@/components/ui/Badge";
+import { TeamFlag } from "@/components/ui/TeamFlag";
 import { formatMatchDate } from "@/lib/utils";
 
 export default function SearchPage() {
   const [query, setQuery] = useState("");
 
-  type PlayerResult = { player: (typeof squads)[string][number]; teamId: string; teamName: string; flag: string };
+  type PlayerResult = { player: (typeof squads)[string][number]; teamId: string; teamName: string };
   type SearchResults = { teams: typeof teams; players: PlayerResult[]; matches: typeof matches };
 
   const results: SearchResults = useMemo(() => {
@@ -27,7 +28,7 @@ export default function SearchPage() {
       const team = teams.find(t => t.id === teamId);
       for (const player of squad) {
         if (player.name.toLowerCase().includes(q) || player.club.toLowerCase().includes(q)) {
-          matchedPlayers.push({ player, teamId, teamName: team?.name || teamId, flag: team?.flag || "" });
+          matchedPlayers.push({ player, teamId, teamName: team?.name || teamId });
         }
       }
     }
@@ -58,7 +59,7 @@ export default function SearchPage() {
               <Link key={t.id} href={`/teams/${t.id}`}>
                 <Card hover className="!p-3">
                   <div className="flex items-center gap-3">
-                    <span className="text-2xl">{t.flag}</span>
+                    <TeamFlag teamId={t.id} size="md" />
                     <div>
                       <div className="font-medium text-white">{t.name}</div>
                       <div className="flex items-center gap-2 text-xs"><GroupBadge group={t.group} /><ConfederationBadge confederation={t.confederation} /><span className="text-[var(--muted)]">#{t.fifaRanking} | Coach: {t.coach}</span></div>
@@ -75,14 +76,14 @@ export default function SearchPage() {
         <div className="mb-8">
           <h2 className="text-sm font-semibold text-[var(--muted)] uppercase tracking-wider mb-3">Players ({results.players.length})</h2>
           <div className="space-y-2">
-            {results.players.map(({ player, teamId, teamName, flag }) => (
+            {results.players.map(({ player, teamId, teamName }) => (
               <Link key={player.id} href={`/teams/${teamId}`}>
                 <Card hover className="!p-3">
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 rounded-full bg-[var(--accent)]/20 flex items-center justify-center text-sm font-bold text-[var(--accent-light)]">{player.shirtNumber}</div>
                     <div className="flex-1">
                       <div className="font-medium text-white">{player.name}</div>
-                      <div className="text-xs text-[var(--muted)]">{flag} {teamName} | {player.position} | {player.club}</div>
+                      <div className="text-xs text-[var(--muted)] flex items-center gap-1"><TeamFlag teamId={teamId} size="xs" /> {teamName} | {player.position} | {player.club}</div>
                     </div>
                     <div className="text-right text-xs text-[var(--muted)]">{player.caps} caps | {player.goals} goals</div>
                   </div>
@@ -106,7 +107,7 @@ export default function SearchPage() {
                     <div className="flex items-center gap-3">
                       <div className="text-xs text-[var(--accent-light)] w-14 shrink-0">{formatMatchDate(m.date)}</div>
                       <div className="flex-1">
-                        <div className="text-sm font-medium text-white">{home?.flag || '🏳️'} {home?.shortName || m.homeTeamId} vs {away?.shortName || m.awayTeamId} {away?.flag || '🏳️'}</div>
+                        <div className="text-sm font-medium text-white flex items-center gap-1">{home ? <TeamFlag teamId={home.id} size="xs" /> : null} {home?.shortName || m.homeTeamId} vs {away?.shortName || m.awayTeamId} {away ? <TeamFlag teamId={away.id} size="xs" /> : null}</div>
                         <div className="text-xs text-[var(--muted)]">{m.venue}, {m.city}</div>
                       </div>
                     </div>
