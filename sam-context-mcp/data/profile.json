@@ -1,0 +1,32 @@
+{
+  "name": "Sam Hodgkinson",
+  "role": "Finance Director, BU Turkeys / Acceleration Lead",
+  "organization": "Hendrix Genetics",
+  "startDate": "2026-01-01",
+  "fullTimeDate": "2026-03-01",
+  "location": "Oakville, Ontario, Canada",
+  "previousLocation": "London, UK",
+  "reportsTo": "Roger van Biljouw",
+  "functionalLine": "Andrew Hunt",
+  "domains": [
+    "Performance Management",
+    "Cash & Working Capital",
+    "Forecasting",
+    "Finance Governance",
+    "ERP Migration",
+    "Transformation & Value Creation"
+  ],
+  "background": [
+    "McKinsey",
+    "Deloitte",
+    "KordaMentha",
+    "Sam Hodgkinson Consulting Ltd"
+  ],
+  "communicationStyle": {
+    "tone": "Direct, precise, high-signal",
+    "format": "Executive summary first, structured outputs, copy-paste-ready",
+    "uncertaintyLabeling": true,
+    "noFiller": true
+  },
+  "lastUpdated": "2026-04-06"
+}

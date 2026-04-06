@@ -1,0 +1,141 @@
+[
+  {
+    "id": "communication-style",
+    "title": "Communication Style",
+    "path": "context/communication-style.md",
+    "summary": "Communication preferences, formatting rules, and interaction patterns for AI agents.",
+    "tags": [
+      "communication",
+      "style",
+      "preferences",
+      "ai"
+    ],
+    "lastUpdated": "2026-04-06",
+    "priority": 1
+  },
+  {
+    "id": "current-projects",
+    "title": "Current Projects",
+    "path": "context/current-projects.md",
+    "summary": "Active projects including D365 ERP transition, Cash is King relaunch, and AI operating model.",
+    "tags": [
+      "projects",
+      "erp",
+      "d365",
+      "cash",
+      "ai",
+      "acceleration"
+    ],
+    "lastUpdated": "2026-04-06",
+    "priority": 1
+  },
+  {
+    "id": "decision-log",
+    "title": "Decision Log",
+    "path": "context/decision-log.md",
+    "summary": "Structured log of key decisions with context, rationale, and outcomes.",
+    "tags": [
+      "decisions",
+      "log",
+      "governance"
+    ],
+    "lastUpdated": "2026-04-06",
+    "priority": 1
+  },
+  {
+    "id": "goals-and-priorities",
+    "title": "Goals and Priorities",
+    "path": "context/goals-and-priorities.md",
+    "summary": "Current strategic and personal priorities, ranked by urgency and importance.",
+    "tags": [
+      "goals",
+      "priorities",
+      "strategy"
+    ],
+    "lastUpdated": "2026-04-06",
+    "priority": 1
+  },
+  {
+    "id": "identity",
+    "title": "Identity",
+    "path": "context/identity.md",
+    "summary": "Core identity facts: name, background, career history, and personal positioning.",
+    "tags": [
+      "identity",
+      "background",
+      "career"
+    ],
+    "lastUpdated": "2026-04-06",
+    "priority": 1
+  },
+  {
+    "id": "role-and-responsibilities",
+    "title": "Role and Responsibilities",
+    "path": "context/role-and-responsibilities.md",
+    "summary": "Current role at Hendrix Genetics, reporting lines, scope, and key accountabilities.",
+    "tags": [
+      "role",
+      "responsibilities",
+      "hendrix",
+      "finance"
+    ],
+    "lastUpdated": "2026-04-06",
+    "priority": 1
+  },
+  {
+    "id": "domain-knowledge",
+    "title": "Domain Knowledge",
+    "path": "context/domain-knowledge.md",
+    "summary": "Key domain areas: poultry genetics, finance transformation, ERP systems, consulting frameworks.",
+    "tags": [
+      "domain",
+      "knowledge",
+      "finance",
+      "genetics",
+      "consulting"
+    ],
+    "lastUpdated": "2026-04-06",
+    "priority": 2
+  },
+  {
+    "id": "preferences-and-constraints",
+    "title": "Preferences and Constraints",
+    "path": "context/preferences-and-constraints.md",
+    "summary": "Operating constraints, decision-making principles, and guardrails.",
+    "tags": [
+      "preferences",
+      "constraints",
+      "decisions",
+      "principles"
+    ],
+    "lastUpdated": "2026-04-06",
+    "priority": 2
+  },
+  {
+    "id": "team-and-relationships",
+    "title": "Team and Relationships",
+    "path": "context/team-and-relationships.md",
+    "summary": "Key stakeholders, reporting relationships, and collaboration dynamics.",
+    "tags": [
+      "team",
+      "stakeholders",
+      "relationships"
+    ],
+    "lastUpdated": "2026-04-06",
+    "priority": 2
+  },
+  {
+    "id": "tools-and-systems",
+    "title": "Tools and Systems",
+    "path": "context/tools-and-systems.md",
+    "summary": "Technology stack, tools in use, and system preferences.",
+    "tags": [
+      "tools",
+      "systems",
+      "technology",
+      "erp"
+    ],
+    "lastUpdated": "2026-04-06",
+    "priority": 2
+  }
+]

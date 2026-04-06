@@ -1,0 +1,20 @@
+{
+  "aliases": {
+    "Sam": "identity",
+    "Sam Hodgkinson": "identity",
+    "SH": "identity",
+    "D365": "current-projects",
+    "Dynamics 365": "current-projects",
+    "ERP": "current-projects",
+    "Cash is King": "current-projects",
+    "CIK": "current-projects",
+    "Hendrix": "role-and-responsibilities",
+    "Hendrix Genetics": "role-and-responsibilities",
+    "BU Turkeys": "role-and-responsibilities",
+    "Roger": "team-and-relationships",
+    "Andrew": "team-and-relationships",
+    "Valerie": "team-and-relationships",
+    "decision": "decision-log",
+    "decisions": "decision-log"
+  }
+}
