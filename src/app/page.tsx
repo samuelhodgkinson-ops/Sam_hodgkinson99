@@ -39,6 +39,25 @@ export default function HomePage() {
           ))}
         </div>
 
+        <Link href="/turkey-barn" className="block mb-12 group">
+          <div className="relative overflow-hidden rounded-2xl border border-[var(--card-border)] bg-gradient-to-br from-[var(--card-bg)] to-[var(--surface)] p-6 sm:p-8 hover:border-[var(--accent)] transition-all">
+            <div className="absolute -right-4 -top-6 text-[7rem] sm:text-[9rem] opacity-10 group-hover:opacity-20 transition-opacity select-none pointer-events-none">🦃</div>
+            <div className="relative flex flex-col sm:flex-row sm:items-center gap-5">
+              <div className="text-5xl sm:text-6xl">🦃</div>
+              <div className="flex-1">
+                <div className="text-xs font-semibold uppercase tracking-wide text-[var(--warning)] mb-1">Mini Game</div>
+                <h3 className="text-2xl font-bold text-white mb-1">Turkey Barn Door</h3>
+                <p className="text-sm text-[var(--muted-light)] max-w-xl">
+                  Slam the barn doors shut before the turkeys escape to earn genetic improvement points. Let too many bolt and your farm goes bankrupt. How long can you last?
+                </p>
+              </div>
+              <span className="self-start sm:self-center px-5 py-3 rounded-lg bg-[var(--accent)] text-white font-semibold group-hover:bg-[var(--accent-hover)] transition-colors whitespace-nowrap">
+                Play Now
+              </span>
+            </div>
+          </div>
+        </Link>
+
         <h2 className="text-xl font-bold text-white mb-6">Quick Access</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {[
@@ -48,6 +67,7 @@ export default function HomePage() {
             { href: "/standings", icon: "🏆", title: "Standings", desc: "Full tournament standings across all groups" },
             { href: "/compare", icon: "⚖️", title: "Compare Teams", desc: "Side-by-side comparison of any two teams" },
             { href: "/search", icon: "🔍", title: "Search", desc: "Find teams, players, and matches quickly" },
+            { href: "/turkey-barn", icon: "🦃", title: "Turkey Barn Door", desc: "Shut the barn doors and bank genetic improvement points before going bankrupt" },
           ].map((l) => (
             <Link key={l.href} href={l.href}>
               <div className="rounded-xl border border-[var(--card-border)] bg-[var(--card-bg)] p-5 hover:bg-[var(--card-hover)] hover:border-[var(--accent)] transition-all">
