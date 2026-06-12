@@ -11,6 +11,7 @@ const navLinks = [
   { href: "/matches", label: "Fixtures" },
   { href: "/standings", label: "Standings" },
   { href: "/compare", label: "Compare" },
+  { href: "/turkey-barn", label: "🦃 Barn Game" },
 ];
 
 export function Navigation() {
