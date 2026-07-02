@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useReducer, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useReducer, useState, useSyncExternalStore } from "react";
 
 /* ------------------------------------------------------------------ */
 /*  Levels                                                             */
@@ -18,7 +18,7 @@ interface Level {
   plank: string; // detail colour on a shut pen
 }
 
-// Six levels — you climb through them as you save more animals.
+// Levels you climb through as you save more animals.
 const LEVELS: Level[] = [
   {
     name: "Turkeys in the Barn",
@@ -46,6 +46,11 @@ const LEVELS: Level[] = [
     enclosure: "#0a2438", openBg: "#0f2f52", closedBg: "#1e3f6b", plank: "#2e5f94",
   },
   {
+    name: "Pigs in a Pig Pen",
+    animal: "🐷", keeper: "🧑‍🌾", closed: "🚧", escape: "rooted out of the pen",
+    enclosure: "#241a12", openBg: "#352618", closedBg: "#6b4a2e", plank: "#8a6a3e",
+  },
+  {
     name: "The Office — Retention Floor",
     animal: "🏃", keeper: "🧑‍💼", closed: "🚪", escape: "walked out",
     enclosure: "#1b1b22", openBg: "#26262e", closedBg: "#3a3a46", plank: "#55556a",
@@ -64,7 +69,7 @@ const SHUT_REWARD = 4; // base genetic improvement points per pen shut
 const ESCAPE_PENALTY = 12; // points lost when an animal escapes
 const TICK_MS = 100;
 const SAVES_PER_LEVEL = 8;
-const WIN_SAVES = SAVES_PER_LEVEL * LEVELS.length; // clear all six levels
+const WIN_SAVES = SAVES_PER_LEVEL * LEVELS.length; // clear every level
 
 type Phase = "idle" | "playing" | "over" | "won";
 type Dir = "up" | "down" | "left" | "right";
@@ -79,14 +84,15 @@ interface Door {
 
 interface Game {
   phase: Phase;
-  points: number;
+  points: number; // survival balance — hit zero and you're bankrupt
+  earned: number; // total genetic points earned this run (the leaderboard score)
   saves: number;
   escaped: number;
   keeper: number; // pen index (0..5) the keeper is standing at
   doors: Door[];
 }
 
-/* Which level (1..6) you're on, and how hard the pens are behaving. */
+/* Which level (1..N) you're on, and how hard the pens are behaving. */
 const stageFor = (saves: number) =>
   Math.min(LEVELS.length, Math.floor(saves / SAVES_PER_LEVEL) + 1);
 const diffFor = (saves: number) => Math.floor(saves / 4) + 1;
@@ -116,6 +122,7 @@ function freshGame(): Game {
   return {
     phase: "idle",
     points: START_POINTS,
+    earned: 0,
     saves: 0,
     escaped: 0,
     keeper: 0,
@@ -131,7 +138,7 @@ function shutCell(state: Game, idx: number): Game {
   const saves = state.saves + 1;
   const diff = diffFor(saves);
   // quicker reactions earn a small reflex bonus on top of the base reward
-  const reflexBonus = Math.round((1 - door.progress) * 3);
+  const reward = SHUT_REWARD + Math.round((1 - door.progress) * 3);
   const doors = state.doors.map((d) =>
     d.id === idx
       ? {
@@ -144,7 +151,14 @@ function shutCell(state: Game, idx: number): Game {
       : d,
   );
   const phase: Phase = saves >= WIN_SAVES ? "won" : state.phase;
-  return { ...state, doors, saves, points: state.points + SHUT_REWARD + reflexBonus, phase };
+  return {
+    ...state,
+    doors,
+    saves,
+    points: state.points + reward,
+    earned: state.earned + reward,
+    phase,
+  };
 }
 
 /* ------------------------------------------------------------------ */
@@ -225,31 +239,65 @@ function reducer(state: Game, action: Action): Game {
 }
 
 /* ------------------------------------------------------------------ */
-/*  Best-run store (localStorage-backed external store)                */
+/*  Leaderboard (localStorage-backed external store)                   */
 /* ------------------------------------------------------------------ */
 
-const BEST_KEY = "turkeyBarnBest";
-const bestListeners = new Set<() => void>();
+const LB_KEY = "barnKeeperLeaderboard";
+const MAX_ENTRIES = 10;
+const EMPTY: LeaderEntry[] = [];
+const lbListeners = new Set<() => void>();
+let lbCache: LeaderEntry[] | null = null;
 
-function readBest(): number {
-  if (typeof window === "undefined") return 0;
-  const v = Number(window.localStorage.getItem(BEST_KEY));
-  return Number.isFinite(v) ? v : 0;
+interface LeaderEntry {
+  name: string;
+  score: number; // total genetic points earned
+  saves: number;
+  level: number; // highest level reached
+  won: boolean;
+  at: number; // timestamp, also used as a stable id
 }
 
-function subscribeBest(cb: () => void) {
-  bestListeners.add(cb);
-  window.addEventListener("storage", cb);
+function parseLB(): LeaderEntry[] {
+  if (typeof window === "undefined") return EMPTY;
+  try {
+    const raw = window.localStorage.getItem(LB_KEY);
+    if (!raw) return EMPTY;
+    const arr = JSON.parse(raw);
+    if (!Array.isArray(arr)) return EMPTY;
+    return arr.filter(
+      (e): e is LeaderEntry => e && typeof e.score === "number" && typeof e.name === "string",
+    );
+  } catch {
+    return EMPTY;
+  }
+}
+
+function readLB(): LeaderEntry[] {
+  if (lbCache === null) lbCache = parseLB();
+  return lbCache;
+}
+
+function subscribeLB(cb: () => void) {
+  lbListeners.add(cb);
+  const onStorage = () => {
+    lbCache = null;
+    cb();
+  };
+  window.addEventListener("storage", onStorage);
   return () => {
-    bestListeners.delete(cb);
-    window.removeEventListener("storage", cb);
+    lbListeners.delete(cb);
+    window.removeEventListener("storage", onStorage);
   };
 }
 
-function saveBest(n: number) {
+function addEntry(entry: LeaderEntry) {
   if (typeof window === "undefined") return;
-  window.localStorage.setItem(BEST_KEY, String(n));
-  bestListeners.forEach((cb) => cb());
+  const next = [...parseLB(), entry]
+    .sort((a, b) => b.score - a.score || b.saves - a.saves)
+    .slice(0, MAX_ENTRIES);
+  window.localStorage.setItem(LB_KEY, JSON.stringify(next));
+  lbCache = null;
+  lbListeners.forEach((cb) => cb());
 }
 
 /* ------------------------------------------------------------------ */
@@ -258,7 +306,32 @@ function saveBest(n: number) {
 
 export function TurkeyBarnGame() {
   const [game, dispatch] = useReducer(reducer, undefined, freshGame);
-  const best = useSyncExternalStore(subscribeBest, readBest, () => 0);
+  const leaderboard = useSyncExternalStore(subscribeLB, readLB, () => EMPTY);
+  const [name, setName] = useState("");
+  const [myAt, setMyAt] = useState<number | null>(null); // id of this run's submitted entry
+
+  const stage = stageFor(game.saves);
+
+  const startGame = useCallback(() => {
+    setMyAt(null);
+    dispatch({ type: "start" });
+  }, []);
+
+  const move = useCallback((dir: Dir) => dispatch({ type: "move", dir }), []);
+
+  const submitScore = useCallback(() => {
+    if (myAt !== null) return; // already recorded this run
+    const at = Date.now();
+    addEntry({
+      name: name.trim().slice(0, 16) || "Anonymous",
+      score: game.earned,
+      saves: game.saves,
+      level: stage,
+      won: game.phase === "won",
+      at,
+    });
+    setMyAt(at);
+  }, [myAt, name, game.earned, game.saves, game.phase, stage]);
 
   // Game loop — a single interval drives every pen.
   useEffect(() => {
@@ -270,6 +343,10 @@ export function TurkeyBarnGame() {
   // Keyboard controls — arrows move the keeper, space slams the current pen.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
+      // don't hijack keys while the player is typing their leaderboard name
+      const tag = (e.target as HTMLElement | null)?.tagName;
+      if (tag === "INPUT" || tag === "TEXTAREA") return;
+
       const k = e.key;
       const control = ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", " ", "Spacebar"];
       if (control.includes(k)) e.preventDefault();
@@ -281,28 +358,19 @@ export function TurkeyBarnGame() {
         else if (k === "ArrowRight") dispatch({ type: "move", dir: "right" });
         else if (k === " " || k === "Spacebar") dispatch({ type: "shut" });
       } else if (k === "Enter" || k === " " || k === "Spacebar") {
-        dispatch({ type: "start" });
+        startGame();
       }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [game.phase]);
+  }, [game.phase, startGame]);
 
-  // Persist a new high score when a run ends (bankrupt or victory).
-  useEffect(() => {
-    if ((game.phase === "over" || game.phase === "won") && game.saves > best) {
-      saveBest(game.saves);
-    }
-  }, [game.phase, game.saves, best]);
-
-  const move = useCallback((dir: Dir) => dispatch({ type: "move", dir }), []);
-
-  const stage = stageFor(game.saves);
   const level = LEVELS[stage - 1];
   const diff = diffFor(game.saves);
   const savesIntoLevel = Math.min(SAVES_PER_LEVEL, game.saves - (stage - 1) * SAVES_PER_LEVEL);
   const pointsPct = Math.max(0, Math.min(100, (game.points / START_POINTS) * 100));
   const low = game.points <= 30;
+  const ended = game.phase === "over" || game.phase === "won";
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
@@ -312,16 +380,16 @@ export function TurkeyBarnGame() {
         <h1 className="text-3xl sm:text-4xl font-bold text-white">Barn Door Keeper</h1>
         <p className="text-[var(--muted-light)] mt-2 max-w-xl mx-auto">
           Drive your keeper with the <span className="text-white font-semibold">arrow keys</span> and
-          reach an open pen to slam it shut before the animal escapes. Bank{" "}
-          <span className="text-[var(--accent-light)] font-semibold">genetic improvement points</span>{" "}
-          — hit zero and your operation goes bankrupt.
+          reach an open pen to slam it shut before the animal escapes. Points{" "}
+          <span className="text-[var(--accent-light)] font-semibold">accumulate across all levels</span>{" "}
+          — survive to the end to make the leaderboard, or hit zero and go bankrupt.
         </p>
       </div>
 
       {/* Scoreboard */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
         <Stat label="Genetic Points" value={Math.round(game.points)} accent={low ? "danger" : "accent"} />
-        <Stat label="Saved" value={game.saves} accent="success" />
+        <Stat label="Score (earned)" value={game.earned} accent="success" />
         <Stat label="Escaped" value={game.escaped} accent="warning" />
         <Stat label={`Level ${stage}/${LEVELS.length}`} value={savesIntoLevel} suffix={`/${SAVES_PER_LEVEL}`} accent="accent" />
       </div>
@@ -331,7 +399,9 @@ export function TurkeyBarnGame() {
         <div className="text-sm font-semibold text-white">
           <span className="text-[var(--muted)]">Level {stage}:</span> {level.name}
         </div>
-        <div className="text-xs text-[var(--muted)]">Best run: {best} saved</div>
+        <div className="text-xs text-[var(--muted)]">
+          Saved {game.saves} · {game.escaped} escaped
+        </div>
       </div>
 
       {/* Genetic points bar */}
@@ -358,53 +428,82 @@ export function TurkeyBarnGame() {
 
         {/* Overlays */}
         {game.phase !== "playing" && (
-          <div className="absolute inset-0 rounded-2xl bg-[var(--background)]/85 backdrop-blur-sm flex items-center justify-center p-4">
-            <div className="text-center max-w-sm">
-              {game.phase === "idle" && (
-                <>
-                  <div className="text-5xl mb-3">🕹️</div>
-                  <h2 className="text-2xl font-bold text-white mb-2">Ready to run the farm?</h2>
-                  <p className="text-[var(--muted-light)] text-sm mb-5">
-                    Use the <span className="text-white font-semibold">arrow keys</span> (or the on-screen
-                    D-pad) to move your keeper onto an open pen and slam it shut. Save{" "}
-                    {SAVES_PER_LEVEL} in a row to advance through all {LEVELS.length} levels —
-                    turkeys, hens, chickens, salmon, shrimp, and the office floor. Hit zero points and
-                    you&apos;re bankrupt.
+          <div className="absolute inset-0 rounded-2xl bg-[var(--background)]/90 backdrop-blur-sm flex items-center justify-center p-3 overflow-y-auto">
+            {game.phase === "idle" ? (
+              <div className="text-center max-w-sm my-auto">
+                <div className="text-5xl mb-3">🕹️</div>
+                <h2 className="text-2xl font-bold text-white mb-2">Ready to run the farm?</h2>
+                <p className="text-[var(--muted-light)] text-sm mb-5">
+                  Use the <span className="text-white font-semibold">arrow keys</span> (or the on-screen
+                  D-pad) to move your keeper onto an open pen and slam it shut. Points build up across all{" "}
+                  {LEVELS.length} levels — turkeys, hens, chickens, salmon, shrimp, pigs, and the office
+                  floor. Reach the end and your total lands on the leaderboard. Hit zero points and
+                  you&apos;re bankrupt.
+                </p>
+                <button
+                  onClick={startGame}
+                  className="px-6 py-3 rounded-lg bg-[var(--accent)] text-white font-semibold hover:bg-[var(--accent-hover)] transition-colors"
+                >
+                  Open the Barn
+                </button>
+              </div>
+            ) : (
+              <div className="w-full max-w-sm my-auto">
+                <div className="text-center mb-4">
+                  <div className="text-5xl mb-2">{game.phase === "won" ? "🏆" : "💸"}</div>
+                  <h2
+                    className="text-2xl font-bold mb-1"
+                    style={{ color: game.phase === "won" ? "var(--success)" : "var(--danger)" }}
+                  >
+                    {game.phase === "won" ? "You cleared every level!" : "Bankrupt!"}
+                  </h2>
+                  <p className="text-[var(--muted-light)] text-sm">
+                    Score <span className="text-white font-semibold">{game.earned}</span> · saved{" "}
+                    {game.saves} · reached Level {stage}
                   </p>
-                </>
-              )}
-              {game.phase === "over" && (
-                <>
-                  <div className="text-5xl mb-3">💸</div>
-                  <h2 className="text-2xl font-bold text-[var(--danger)] mb-2">Bankrupt!</h2>
-                  <p className="text-[var(--muted-light)] text-sm mb-1">
-                    You saved <span className="text-[var(--success)] font-semibold">{game.saves}</span>{" "}
-                    animals but {game.escaped} {game.escaped === 1 ? "got" : "got"} away.
-                  </p>
-                  <p className="text-[var(--muted)] text-xs mb-5">
-                    You reached <span className="text-white">Level {stage}</span> ·{" "}
-                    {game.saves >= best && game.saves > 0 ? "🏆 New best run!" : `Best run: ${best} saved`}
-                  </p>
-                </>
-              )}
-              {game.phase === "won" && (
-                <>
-                  <div className="text-5xl mb-3">🏆</div>
-                  <h2 className="text-2xl font-bold text-[var(--success)] mb-2">You cleared every level!</h2>
-                  <p className="text-[var(--muted-light)] text-sm mb-5">
-                    Turkeys, hens, chickens, salmon, shrimp and even the office floor — all kept in.
-                    You saved {game.saves} with {game.escaped} escapes and{" "}
-                    {Math.round(game.points)} genetic points banked.
-                  </p>
-                </>
-              )}
-              <button
-                onClick={() => dispatch({ type: "start" })}
-                className="px-6 py-3 rounded-lg bg-[var(--accent)] text-white font-semibold hover:bg-[var(--accent-hover)] transition-colors"
-              >
-                {game.phase === "idle" ? "Open the Barn" : "Play Again"}
-              </button>
-            </div>
+                </div>
+
+                {/* Submit-to-leaderboard form */}
+                {myAt === null ? (
+                  <form
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      submitScore();
+                    }}
+                    className="flex gap-2 mb-4"
+                  >
+                    <input
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      maxLength={16}
+                      placeholder="Your name"
+                      aria-label="Your name for the leaderboard"
+                      className="flex-1"
+                    />
+                    <button
+                      type="submit"
+                      className="px-4 py-2 rounded-lg bg-[var(--accent)] text-white text-sm font-semibold hover:bg-[var(--accent-hover)] transition-colors whitespace-nowrap"
+                    >
+                      Submit score
+                    </button>
+                  </form>
+                ) : (
+                  <p className="text-center text-xs text-[var(--success)] mb-4">✓ Score saved to the leaderboard</p>
+                )}
+
+                {/* Leaderboard */}
+                <Leaderboard entries={leaderboard} highlightAt={myAt} />
+
+                <div className="text-center mt-4">
+                  <button
+                    onClick={startGame}
+                    className="px-6 py-3 rounded-lg bg-[var(--accent)] text-white font-semibold hover:bg-[var(--accent-hover)] transition-colors"
+                  >
+                    Play Again
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -419,7 +518,7 @@ export function TurkeyBarnGame() {
         </div>
         <p className="text-center text-xs text-[var(--muted)] mt-2">
           Arrow keys or the D-pad move the keeper {level.keeper}. Reach an open pen to slam it shut for a
-          reflex bonus. Difficulty {diff} — it gets busier every level.
+          reflex bonus. Difficulty {diff}{ended ? "" : " — it gets busier every level."}
         </p>
       </div>
     </div>
@@ -448,6 +547,38 @@ function Stat({
         {suffix && <span className="text-sm text-[var(--muted)]">{suffix}</span>}
       </div>
       <div className="text-xs text-[var(--muted)] mt-0.5">{label}</div>
+    </div>
+  );
+}
+
+function Leaderboard({ entries, highlightAt }: { entries: LeaderEntry[]; highlightAt: number | null }) {
+  return (
+    <div className="rounded-xl border border-[var(--card-border)] bg-[var(--card-bg)] overflow-hidden">
+      <div className="px-3 py-2 text-xs font-semibold uppercase tracking-wide text-[var(--muted)] border-b border-[var(--card-border)]">
+        🏆 Leaderboard
+      </div>
+      {entries.length === 0 ? (
+        <p className="px-3 py-4 text-sm text-[var(--muted)] text-center">No scores yet — be the first!</p>
+      ) : (
+        <ol className="divide-y divide-[var(--card-border)]">
+          {entries.map((e, i) => {
+            const mine = e.at === highlightAt;
+            return (
+              <li
+                key={e.at}
+                className={`flex items-center gap-3 px-3 py-2 text-sm ${mine ? "bg-[var(--accent)]/15" : ""}`}
+              >
+                <span className="w-5 text-right font-bold text-[var(--muted)]">{i + 1}</span>
+                <span className="flex-1 truncate text-white">
+                  {e.name} {e.won && <span title="Cleared every level">🏆</span>}
+                </span>
+                <span className="text-xs text-[var(--muted)]">L{e.level}</span>
+                <span className="w-12 text-right font-semibold text-[var(--success)]">{e.score}</span>
+              </li>
+            );
+          })}
+        </ol>
+      )}
     </div>
   );
 }
