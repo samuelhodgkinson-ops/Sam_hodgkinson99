@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useReducer, useState, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useReducer, useState } from "react";
 
 /* ------------------------------------------------------------------ */
 /*  Levels                                                             */
@@ -239,14 +239,12 @@ function reducer(state: Game, action: Action): Game {
 }
 
 /* ------------------------------------------------------------------ */
-/*  Leaderboard (localStorage-backed external store)                   */
+/*  Leaderboard — shared via /api/leaderboard, with a localStorage      */
+/*  fallback so the board still works if the network is unreachable.    */
 /* ------------------------------------------------------------------ */
 
 const LB_KEY = "barnKeeperLeaderboard";
 const MAX_ENTRIES = 10;
-const EMPTY: LeaderEntry[] = [];
-const lbListeners = new Set<() => void>();
-let lbCache: LeaderEntry[] | null = null;
 
 interface LeaderEntry {
   name: string;
@@ -257,47 +255,27 @@ interface LeaderEntry {
   at: number; // timestamp, also used as a stable id
 }
 
-function parseLB(): LeaderEntry[] {
-  if (typeof window === "undefined") return EMPTY;
+type LbSource = "global" | "local" | "loading";
+
+function readLocal(): LeaderEntry[] {
+  if (typeof window === "undefined") return [];
   try {
-    const raw = window.localStorage.getItem(LB_KEY);
-    if (!raw) return EMPTY;
-    const arr = JSON.parse(raw);
-    if (!Array.isArray(arr)) return EMPTY;
+    const arr = JSON.parse(window.localStorage.getItem(LB_KEY) ?? "[]");
+    if (!Array.isArray(arr)) return [];
     return arr.filter(
       (e): e is LeaderEntry => e && typeof e.score === "number" && typeof e.name === "string",
     );
   } catch {
-    return EMPTY;
+    return [];
   }
 }
 
-function readLB(): LeaderEntry[] {
-  if (lbCache === null) lbCache = parseLB();
-  return lbCache;
-}
-
-function subscribeLB(cb: () => void) {
-  lbListeners.add(cb);
-  const onStorage = () => {
-    lbCache = null;
-    cb();
-  };
-  window.addEventListener("storage", onStorage);
-  return () => {
-    lbListeners.delete(cb);
-    window.removeEventListener("storage", onStorage);
-  };
-}
-
-function addEntry(entry: LeaderEntry) {
-  if (typeof window === "undefined") return;
-  const next = [...parseLB(), entry]
+function addLocal(entry: LeaderEntry): LeaderEntry[] {
+  const next = [...readLocal(), entry]
     .sort((a, b) => b.score - a.score || b.saves - a.saves)
     .slice(0, MAX_ENTRIES);
-  window.localStorage.setItem(LB_KEY, JSON.stringify(next));
-  lbCache = null;
-  lbListeners.forEach((cb) => cb());
+  if (typeof window !== "undefined") window.localStorage.setItem(LB_KEY, JSON.stringify(next));
+  return next;
 }
 
 /* ------------------------------------------------------------------ */
@@ -306,11 +284,13 @@ function addEntry(entry: LeaderEntry) {
 
 export function TurkeyBarnGame() {
   const [game, dispatch] = useReducer(reducer, undefined, freshGame);
-  const leaderboard = useSyncExternalStore(subscribeLB, readLB, () => EMPTY);
+  const [leaderboard, setLeaderboard] = useState<LeaderEntry[]>([]);
+  const [lbSource, setLbSource] = useState<LbSource>("loading");
   const [name, setName] = useState("");
   const [myAt, setMyAt] = useState<number | null>(null); // id of this run's submitted entry
 
   const stage = stageFor(game.saves);
+  const ended = game.phase === "over" || game.phase === "won";
 
   const startGame = useCallback(() => {
     setMyAt(null);
@@ -319,18 +299,47 @@ export function TurkeyBarnGame() {
 
   const move = useCallback((dir: Dir) => dispatch({ type: "move", dir }), []);
 
-  const submitScore = useCallback(() => {
+  // Pull the current global board (falls back to this device's saved scores).
+  const refresh = useCallback(async () => {
+    setLbSource("loading");
+    try {
+      const res = await fetch("/api/leaderboard", { cache: "no-store" });
+      if (!res.ok) throw new Error();
+      const data = (await res.json()) as { entries?: LeaderEntry[] };
+      setLeaderboard(data.entries ?? []);
+      setLbSource("global");
+    } catch {
+      setLeaderboard(readLocal());
+      setLbSource("local");
+    }
+  }, []);
+
+  const submitScore = useCallback(async () => {
     if (myAt !== null) return; // already recorded this run
     const at = Date.now();
-    addEntry({
+    const entry: LeaderEntry = {
       name: name.trim().slice(0, 16) || "Anonymous",
       score: game.earned,
       saves: game.saves,
       level: stage,
       won: game.phase === "won",
       at,
-    });
+    };
     setMyAt(at);
+    try {
+      const res = await fetch("/api/leaderboard", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(entry),
+      });
+      if (!res.ok) throw new Error();
+      const data = (await res.json()) as { entries?: LeaderEntry[] };
+      setLeaderboard(data.entries ?? []);
+      setLbSource("global");
+    } catch {
+      setLeaderboard(addLocal(entry));
+      setLbSource("local");
+    }
   }, [myAt, name, game.earned, game.saves, game.phase, stage]);
 
   // Game loop — a single interval drives every pen.
@@ -365,12 +374,16 @@ export function TurkeyBarnGame() {
     return () => window.removeEventListener("keydown", onKey);
   }, [game.phase, startGame]);
 
+  // Load the global board whenever a run ends.
+  useEffect(() => {
+    if (ended) refresh();
+  }, [ended, refresh]);
+
   const level = LEVELS[stage - 1];
   const diff = diffFor(game.saves);
   const savesIntoLevel = Math.min(SAVES_PER_LEVEL, game.saves - (stage - 1) * SAVES_PER_LEVEL);
   const pointsPct = Math.max(0, Math.min(100, (game.points / START_POINTS) * 100));
   const low = game.points <= 30;
-  const ended = game.phase === "over" || game.phase === "won";
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
@@ -492,7 +505,7 @@ export function TurkeyBarnGame() {
                 )}
 
                 {/* Leaderboard */}
-                <Leaderboard entries={leaderboard} highlightAt={myAt} />
+                <Leaderboard entries={leaderboard} highlightAt={myAt} source={lbSource} />
 
                 <div className="text-center mt-4">
                   <button
@@ -551,13 +564,26 @@ function Stat({
   );
 }
 
-function Leaderboard({ entries, highlightAt }: { entries: LeaderEntry[]; highlightAt: number | null }) {
+function Leaderboard({
+  entries,
+  highlightAt,
+  source,
+}: {
+  entries: LeaderEntry[];
+  highlightAt: number | null;
+  source: LbSource;
+}) {
+  const heading =
+    source === "global" ? "🏆 Global Leaderboard" : source === "local" ? "🏆 Leaderboard (this device)" : "🏆 Leaderboard";
   return (
     <div className="rounded-xl border border-[var(--card-border)] bg-[var(--card-bg)] overflow-hidden">
-      <div className="px-3 py-2 text-xs font-semibold uppercase tracking-wide text-[var(--muted)] border-b border-[var(--card-border)]">
-        🏆 Leaderboard
+      <div className="px-3 py-2 text-xs font-semibold uppercase tracking-wide text-[var(--muted)] border-b border-[var(--card-border)] flex items-center justify-between">
+        <span>{heading}</span>
+        {source === "loading" && <span className="text-[var(--muted)] normal-case">loading…</span>}
       </div>
-      {entries.length === 0 ? (
+      {source === "loading" ? (
+        <p className="px-3 py-4 text-sm text-[var(--muted)] text-center">Fetching scores…</p>
+      ) : entries.length === 0 ? (
         <p className="px-3 py-4 text-sm text-[var(--muted)] text-center">No scores yet — be the first!</p>
       ) : (
         <ol className="divide-y divide-[var(--card-border)]">
@@ -578,6 +604,11 @@ function Leaderboard({ entries, highlightAt }: { entries: LeaderEntry[]; highlig
             );
           })}
         </ol>
+      )}
+      {source === "local" && (
+        <p className="px-3 py-2 text-[11px] text-[var(--muted)] border-t border-[var(--card-border)]">
+          Couldn&apos;t reach the global board — showing scores saved on this device.
+        </p>
       )}
     </div>
   );
