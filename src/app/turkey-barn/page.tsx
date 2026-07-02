@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import { TurkeyBarnGame } from "@/components/turkey/TurkeyBarnGame";
 
 export const metadata: Metadata = {
-  title: "Turkey Barn Door | Keep the flock in, earn genetic improvement points",
+  title: "Barn Door Keeper | Arrow-key game across six levels",
   description:
-    "A simple click-to-shut barn door game. Slam the doors before the turkeys escape to earn genetic improvement points. Let too many out and your farm goes bankrupt.",
+    "Drive your keeper with the arrow keys and slam pens shut before the animals escape. Six levels — turkeys, hens, chickens, salmon, shrimp and the office floor. Earn genetic improvement points or go bankrupt.",
 };
 
 export default function TurkeyBarnPage() {

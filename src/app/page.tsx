@@ -46,9 +46,9 @@ export default function HomePage() {
               <div className="text-5xl sm:text-6xl">🦃</div>
               <div className="flex-1">
                 <div className="text-xs font-semibold uppercase tracking-wide text-[var(--warning)] mb-1">Mini Game</div>
-                <h3 className="text-2xl font-bold text-white mb-1">Turkey Barn Door</h3>
+                <h3 className="text-2xl font-bold text-white mb-1">Barn Door Keeper</h3>
                 <p className="text-sm text-[var(--muted-light)] max-w-xl">
-                  Slam the barn doors shut before the turkeys escape to earn genetic improvement points. Let too many bolt and your farm goes bankrupt. How long can you last?
+                  Use the arrow keys to run your keeper across six levels — barns, an African field, the ocean, even the office floor — slamming pens shut before your livestock escape. Bank genetic improvement points or go bankrupt.
                 </p>
               </div>
               <span className="self-start sm:self-center px-5 py-3 rounded-lg bg-[var(--accent)] text-white font-semibold group-hover:bg-[var(--accent-hover)] transition-colors whitespace-nowrap">
@@ -67,7 +67,7 @@ export default function HomePage() {
             { href: "/standings", icon: "🏆", title: "Standings", desc: "Full tournament standings across all groups" },
             { href: "/compare", icon: "⚖️", title: "Compare Teams", desc: "Side-by-side comparison of any two teams" },
             { href: "/search", icon: "🔍", title: "Search", desc: "Find teams, players, and matches quickly" },
-            { href: "/turkey-barn", icon: "🦃", title: "Turkey Barn Door", desc: "Shut the barn doors and bank genetic improvement points before going bankrupt" },
+            { href: "/turkey-barn", icon: "🦃", title: "Barn Door Keeper", desc: "Arrow-key game — run your keeper across six levels shutting pens before the animals escape" },
           ].map((l) => (
             <Link key={l.href} href={l.href}>
               <div className="rounded-xl border border-[var(--card-border)] bg-[var(--card-bg)] p-5 hover:bg-[var(--card-hover)] hover:border-[var(--accent)] transition-all">
